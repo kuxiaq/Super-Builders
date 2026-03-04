@@ -34,44 +34,44 @@ The kernels built here provide the **infrastructure layer** — the hiding primi
 
 ### SUSFS Hiding Infrastructure
 
-- [x] 👻 **Path hiding** — files and directories vanish from `readdir` and path lookups for unprivileged apps
-- [x] 📊 **Kstat spoofing** — file metadata (inode, device, timestamps, size) returns stock values to `stat`/`fstat`/`lstat`
-- [x] 🧠 **Maps hiding** — `/proc/PID/maps`, `/proc/PID/mem`, pagemap, and `map_files` entries blanked for flagged inodes
-- [x] 🏔️ **Mount ID spoofing** — non-SU processes see fake mount IDs across `mountinfo`, `fdinfo`, `statfs`
-- [x] 🔇 **Mount hiding** — KSU mount entries filtered from `/proc/PID/mountinfo` for non-root processes
-- [x] 🏷️ **Uname spoofing** — `uname -r` / `uname -v` return stock-looking kernel version strings
-- [x] 📜 **Cmdline & bootconfig spoofing** — `/proc/cmdline` and `/proc/bootconfig` show clean boot state
-- [x] 🔕 **AVC log suppression** — SELinux audit denial messages suppressed from dmesg/logcat
-- [x] 🛡️ **Kallsyms hiding** — SUSFS and ZeroMount kernel symbols hidden from `/proc/kallsyms`
+- [x] **Path hiding** — files and directories vanish from `readdir` and path lookups for unprivileged apps
+- [x] **Kstat spoofing** — file metadata (inode, device, timestamps, size) returns stock values to `stat`/`fstat`/`lstat`
+- [x] **Maps hiding** — `/proc/PID/maps`, `/proc/PID/mem`, pagemap, and `map_files` entries blanked for flagged inodes
+- [x] **Mount ID spoofing** — non-SU processes see fake mount IDs across `mountinfo`, `fdinfo`, `statfs`
+- [x] **Mount hiding** — KSU mount entries filtered from `/proc/PID/mountinfo` for non-root processes
+- [x] **Uname spoofing** — `uname -r` / `uname -v` return stock-looking kernel version strings
+- [x] **Cmdline & bootconfig spoofing** — `/proc/cmdline` and `/proc/bootconfig` show clean boot state
+- [x] **AVC log suppression** — SELinux audit denial messages suppressed from dmesg/logcat
+- [x] **Kallsyms hiding** — SUSFS and ZeroMount kernel symbols hidden from `/proc/kallsyms`
 
 ### ZeroMount VFS Engine
 
-- [x] 👻 **VFS path redirection** — intercepts `getname()` to redirect file lookups at the VFS layer, zero mount table entries
-- [x] 📂 **Directory entry injection** — module files appear in `ls` / `readdir` like stock system files
-- [x] 🔗 **d_path spoofing** — `/proc/PID/fd` symlinks and `d_path()` return virtual paths
-- [x] 🗺️ **Mmap metadata spoofing** — `/proc/PID/maps` dev/ino replaced with stock values for redirected files
-- [x] 🏷️ **SELinux xattr injection** — redirected files carry correct SELinux contexts (`system_file`, `vendor_file`, etc.)
-- [x] 💾 **statfs spoofing** — system partitions report `EROFS_SUPER_MAGIC` as expected
-- [x] 🔒 **Write protection** — injected files are read-only through virtual paths, preventing source corruption
-- [x] 🌸 **Bloom filter** — 4096-bit 3-hash pre-check rejects non-matching paths in a few CPU cycles
-- [x] 🎛️ **ioctl control** — `/dev/zeromount` miscdevice with 11 commands for userspace rule management
+- [x] **VFS path redirection** — intercepts `getname()` to redirect file lookups at the VFS layer, zero mount table entries
+- [x] **Directory entry injection** — module files appear in `ls` / `readdir` like stock system files
+- [x] **d_path spoofing** — `/proc/PID/fd` symlinks and `d_path()` return virtual paths
+- [x] **Mmap metadata spoofing** — `/proc/PID/maps` dev/ino replaced with stock values for redirected files
+- [x] **SELinux xattr injection** — redirected files carry correct SELinux contexts (`system_file`, `vendor_file`, etc.)
+- [x] **statfs spoofing** — system partitions report `EROFS_SUPER_MAGIC` as expected
+- [x] **Write protection** — injected files are read-only through virtual paths, preventing source corruption
+- [x] **Bloom filter** — 4096-bit 3-hash pre-check rejects non-matching paths in a few CPU cycles
+- [x] **ioctl control** — `/dev/zeromount` miscdevice with 11 commands for userspace rule management
 
 ### Custom Extensions (Not in Upstream SUSFS)
 
-- [x] 🔄 **Kstat redirect** — single supercall maps virtual-path stat to real-path metadata
-- [x] 🛡️ **Unicode filter** — blocks filesystem path attacks using invisible/confusable unicode characters
-- [x] 🧱 **AS_FLAGS collision guards** — `BUILD_BUG_ON` prevents inode flag bit conflicts between SUSFS and ZeroMount
+- [x] **Kstat redirect** — single supercall maps virtual-path stat to real-path metadata
+- [x] **Unicode filter** — blocks filesystem path attacks using invisible/confusable unicode characters
+- [x] **AS_FLAGS collision guards** — `BUILD_BUG_ON` prevents inode flag bit conflicts between SUSFS and ZeroMount
 
 ### Performance & Safety
 
-- [x] ⚡ **Inline fast-path** — root/system processes skip hiding logic entirely (zero overhead)
-- [x] 🏎️ **Two-level readdir guard** — parent directory flags enable early skip when no hidden children exist
-- [x] 🔐 **RCU-protected data structures** — all hash tables use Read-Copy-Update for lock-free concurrent reads
-- [x] 🛡️ **Zygote SID null guard** — prevents false-positive process classification during early boot
-- [x] 🔢 **UID range fix** — all Android app UIDs (10000–19999) correctly recognized
-- [x] 🧵 **Memory barriers** — `WRITE_ONCE`/`READ_ONCE` on hot-path hook flags for cross-CPU safety
-- [x] 📏 **strncpy null-termination** — buffer overread prevention across 5+ SUSFS entry points
-- [x] 🚫 **EACCES removal** — hidden paths return `ENOENT` (indistinguishable from nonexistent) instead of leaking SUSFS presence
+- [x] **Inline fast-path** — root/system processes skip hiding logic entirely (zero overhead)
+- [x] **Two-level readdir guard** — parent directory flags enable early skip when no hidden children exist
+- [x] **RCU-protected data structures** — all hash tables use Read-Copy-Update for lock-free concurrent reads
+- [x] **Zygote SID null guard** — prevents false-positive process classification during early boot
+- [x] **UID range fix** — all Android app UIDs (10000–19999) correctly recognized
+- [x] **Memory barriers** — `WRITE_ONCE`/`READ_ONCE` on hot-path hook flags for cross-CPU safety
+- [x] **strncpy null-termination** — buffer overread prevention across 5+ SUSFS entry points
+- [x] **EACCES removal** — hidden paths return `ENOENT` (indistinguishable from nonexistent) instead of leaking SUSFS presence
 
 ---
 
