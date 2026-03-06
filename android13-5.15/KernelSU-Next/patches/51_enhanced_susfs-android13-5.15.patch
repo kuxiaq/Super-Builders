@@ -1,6 +1,6 @@
-diff '--color=auto' -ruN post-upstream/arch/arm64/configs/gki_defconfig work-50/arch/arm64/configs/gki_defconfig
---- a/arch/arm64/configs/gki_defconfig	2026-03-06 20:29:57.959309448 +0100
-+++ b/arch/arm64/configs/gki_defconfig	2026-03-06 21:05:15.469247275 +0100
+diff -ruN post-upstream/arch/arm64/configs/gki_defconfig work-50/arch/arm64/configs/gki_defconfig
+--- post-upstream/arch/arm64/configs/gki_defconfig	2026-03-06 20:29:57.959309448 +0100
++++ work-50/arch/arm64/configs/gki_defconfig	2026-03-06 21:05:15.469247275 +0100
 @@ -718,3 +718,10 @@
  CONFIG_PID_IN_CONTEXTIDR=y
  CONFIG_FUNCTION_ERROR_INJECTION=y
@@ -12,9 +12,9 @@ diff '--color=auto' -ruN post-upstream/arch/arm64/configs/gki_defconfig work-50/
 +CONFIG_KSU_SUSFS_UID_GATED_HIDING=y
 +CONFIG_KSU_SUSFS_HIDDEN_NAME=y
 +CONFIG_KSU_SUSFS_HARDENED=y
-diff '--color=auto' -ruN post-upstream/fs/Kconfig work-50/fs/Kconfig
---- a/fs/Kconfig	2026-03-06 20:29:57.959480634 +0100
-+++ b/fs/Kconfig	2026-03-06 21:05:13.997281116 +0100
+diff -ruN post-upstream/fs/Kconfig work-50/fs/Kconfig
+--- post-upstream/fs/Kconfig	2026-03-06 20:29:57.959480634 +0100
++++ work-50/fs/Kconfig	2026-03-06 21:05:13.997281116 +0100
 @@ -388,3 +388,41 @@
  	bool
  
@@ -57,9 +57,9 @@ diff '--color=auto' -ruN post-upstream/fs/Kconfig work-50/fs/Kconfig
 +    help
 +      Fixes upstream SUSFS concurrency and error-handling bugs.
 +      Disable to match exact upstream behavior.
-diff '--color=auto' -ruN post-upstream/fs/namei.c work-50/fs/namei.c
---- a/fs/namei.c	2026-03-06 20:29:57.967265289 +0100
-+++ b/fs/namei.c	2026-03-06 21:08:22.033574067 +0100
+diff -ruN post-upstream/fs/namei.c work-50/fs/namei.c
+--- post-upstream/fs/namei.c	2026-03-06 20:29:57.967265289 +0100
++++ work-50/fs/namei.c	2026-03-06 21:08:22.033574067 +0100
 @@ -39,6 +39,9 @@
  #include <linux/bitops.h>
  #include <linux/init_task.h>
@@ -242,9 +242,9 @@ diff '--color=auto' -ruN post-upstream/fs/namei.c work-50/fs/namei.c
  	if (flags & ~(RENAME_NOREPLACE | RENAME_EXCHANGE | RENAME_WHITEOUT))
  		goto put_names;
  
-diff '--color=auto' -ruN post-upstream/fs/namespace.c work-50/fs/namespace.c
---- a/fs/namespace.c	2026-03-06 20:29:57.967681192 +0100
-+++ b/fs/namespace.c	2026-03-06 21:07:57.845514181 +0100
+diff -ruN post-upstream/fs/namespace.c work-50/fs/namespace.c
+--- post-upstream/fs/namespace.c	2026-03-06 20:29:57.967681192 +0100
++++ work-50/fs/namespace.c	2026-03-07 00:03:19.140740430 +0100
 @@ -41,10 +41,9 @@
  
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
@@ -325,7 +325,7 @@ diff '--color=auto' -ruN post-upstream/fs/namespace.c work-50/fs/namespace.c
  
  		INIT_HLIST_NODE(&mnt->mnt_hash);
  		INIT_LIST_HEAD(&mnt->mnt_child);
-@@ -284,25 +273,32 @@
+@@ -284,25 +273,33 @@
  out_free_devname:
  	kfree_const(mnt->mnt_devname);
  #endif
@@ -338,7 +338,7 @@ diff '--color=auto' -ruN post-upstream/fs/namespace.c work-50/fs/namespace.c
 -#endif
 +#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
  
--#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+ #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 -/* A copy of alloc_vfsmnt() but allocates the fake mnt_id to mnt */
 -static struct mount *susfs_alloc_sus_vfsmnt(const char *name)
 +/* A copy of alloc_vfsmnt() but allocates the fake mnt_id for mount that is mounted or single cloned by ksu process */
@@ -364,7 +364,7 @@ diff '--color=auto' -ruN post-upstream/fs/namespace.c work-50/fs/namespace.c
  		}
  
  #ifdef CONFIG_SMP
-@@ -315,8 +311,6 @@
+@@ -315,8 +312,6 @@
  		mnt->mnt_count = 1;
  		mnt->mnt_writers = 0;
  #endif
@@ -373,7 +373,7 @@ diff '--color=auto' -ruN post-upstream/fs/namespace.c work-50/fs/namespace.c
  
  		INIT_HLIST_NODE(&mnt->mnt_hash);
  		INIT_LIST_HEAD(&mnt->mnt_child);
-@@ -337,11 +331,13 @@
+@@ -337,11 +332,13 @@
  out_free_devname:
  	kfree_const(mnt->mnt_devname);
  #endif
@@ -388,7 +388,7 @@ diff '--color=auto' -ruN post-upstream/fs/namespace.c work-50/fs/namespace.c
  
  static struct mount *alloc_vfsmnt(const char *name)
  {
-@@ -370,10 +366,6 @@
+@@ -370,10 +367,6 @@
  		mnt->mnt_count = 1;
  		mnt->mnt_writers = 0;
  #endif
@@ -399,7 +399,7 @@ diff '--color=auto' -ruN post-upstream/fs/namespace.c work-50/fs/namespace.c
  
  		INIT_HLIST_NODE(&mnt->mnt_hash);
  		INIT_LIST_HEAD(&mnt->mnt_child);
-@@ -1124,16 +1116,15 @@
+@@ -1124,16 +1117,15 @@
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
  	// We keep checking for ksu process only until boot-completed stage is triggered
  	if (!susfs_is_sdcard_android_data_decrypted && susfs_is_current_ksu_domain()) {
@@ -419,7 +419,7 @@ diff '--color=auto' -ruN post-upstream/fs/namespace.c work-50/fs/namespace.c
  	if (!mnt)
  		return ERR_PTR(-ENOMEM);
  
-@@ -1221,36 +1212,35 @@
+@@ -1221,36 +1213,35 @@
  	int err;
  
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
@@ -467,7 +467,7 @@ diff '--color=auto' -ruN post-upstream/fs/namespace.c work-50/fs/namespace.c
  	if (!mnt)
  		return ERR_PTR(-ENOMEM);
  
-@@ -3660,7 +3650,7 @@
+@@ -3660,7 +3651,7 @@
  		copy_flags |= CL_SHARED_TO_SLAVE;
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
  	copy_flags |= CL_COPY_MNT_NS;
@@ -476,7 +476,7 @@ diff '--color=auto' -ruN post-upstream/fs/namespace.c work-50/fs/namespace.c
  	new = copy_tree(old, old->mnt.mnt_root, copy_flags);
  	if (IS_ERR(new)) {
  		namespace_unlock();
-@@ -4870,40 +4860,6 @@
+@@ -4870,40 +4861,6 @@
  };
  
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
@@ -518,9 +518,9 @@ diff '--color=auto' -ruN post-upstream/fs/namespace.c work-50/fs/namespace.c
 +noinline void __used susfs_reorder_mnt_id(void) {}
  #endif
  
-diff '--color=auto' -ruN post-upstream/fs/notify/fdinfo.c work-50/fs/notify/fdinfo.c
---- a/fs/notify/fdinfo.c	2026-03-06 20:29:57.967929825 +0100
-+++ b/fs/notify/fdinfo.c	2026-03-06 21:07:18.478419244 +0100
+diff -ruN post-upstream/fs/notify/fdinfo.c work-50/fs/notify/fdinfo.c
+--- post-upstream/fs/notify/fdinfo.c	2026-03-06 20:29:57.967929825 +0100
++++ work-50/fs/notify/fdinfo.c	2026-03-06 21:07:18.478419244 +0100
 @@ -14,7 +14,7 @@
  #include <linux/exportfs.h>
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
@@ -605,9 +605,9 @@ diff '--color=auto' -ruN post-upstream/fs/notify/fdinfo.c work-50/fs/notify/fdin
  		seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:0 ",
  			   inode_mark->wd, inode->i_ino, inode->i_sb->s_dev,
  			   inotify_mark_user_mask(mark));
-diff '--color=auto' -ruN post-upstream/fs/open.c work-50/fs/open.c
---- a/fs/open.c	2026-03-06 20:29:57.968002872 +0100
-+++ b/fs/open.c	2026-03-06 20:30:06.224758067 +0100
+diff -ruN post-upstream/fs/open.c work-50/fs/open.c
+--- post-upstream/fs/open.c	2026-03-06 20:29:57.968002872 +0100
++++ work-50/fs/open.c	2026-03-06 20:30:06.224758067 +0100
 @@ -34,6 +34,7 @@
  #include <linux/compat.h>
  #include <linux/mnt_idmapping.h>
@@ -670,9 +670,9 @@ diff '--color=auto' -ruN post-upstream/fs/open.c work-50/fs/open.c
  	if (fd)
  		return fd;
  
-diff '--color=auto' -ruN post-upstream/fs/proc/base.c work-50/fs/proc/base.c
---- a/fs/proc/base.c	2026-03-06 20:29:57.968172287 +0100
-+++ b/fs/proc/base.c	2026-03-06 21:13:28.509912071 +0100
+diff -ruN post-upstream/fs/proc/base.c work-50/fs/proc/base.c
+--- post-upstream/fs/proc/base.c	2026-03-06 20:29:57.968172287 +0100
++++ work-50/fs/proc/base.c	2026-03-06 21:13:28.509912071 +0100
 @@ -930,8 +930,9 @@
  		vma = find_vma(mm, addr);
  		if (vma && vma->vm_file) {
@@ -711,9 +711,9 @@ diff '--color=auto' -ruN post-upstream/fs/proc/base.c work-50/fs/proc/base.c
  #endif
  		if (++pos <= ctx->pos)
  			continue;
-diff '--color=auto' -ruN post-upstream/fs/proc/fd.c work-50/fs/proc/fd.c
---- a/fs/proc/fd.c	2026-03-06 20:29:57.968386422 +0100
-+++ b/fs/proc/fd.c	2026-03-06 21:08:18.433040866 +0100
+diff -ruN post-upstream/fs/proc/fd.c work-50/fs/proc/fd.c
+--- post-upstream/fs/proc/fd.c	2026-03-06 20:29:57.968386422 +0100
++++ work-50/fs/proc/fd.c	2026-03-06 21:08:18.433040866 +0100
 @@ -15,7 +15,7 @@
  #include <linux/proc_fs.h>
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
@@ -799,9 +799,9 @@ diff '--color=auto' -ruN post-upstream/fs/proc/fd.c work-50/fs/proc/fd.c
  
  	/* show_fd_locks() never deferences files so a stale value is safe */
  	show_fd_locks(m, file, files);
-diff '--color=auto' -ruN post-upstream/fs/proc/task_mmu.c work-50/fs/proc/task_mmu.c
---- a/fs/proc/task_mmu.c	2026-03-06 20:29:57.968477598 +0100
-+++ b/fs/proc/task_mmu.c	2026-03-06 21:14:26.072588683 +0100
+diff -ruN post-upstream/fs/proc/task_mmu.c work-50/fs/proc/task_mmu.c
+--- post-upstream/fs/proc/task_mmu.c	2026-03-06 20:29:57.968477598 +0100
++++ work-50/fs/proc/task_mmu.c	2026-03-06 21:14:26.072588683 +0100
 @@ -291,8 +291,9 @@
  	if (file) {
  		struct inode *inode = file_inode(vma->vm_file);
@@ -901,9 +901,9 @@ diff '--color=auto' -ruN post-upstream/fs/proc/task_mmu.c work-50/fs/proc/task_m
  			{
  				pm.buffer->pme = 0;
  			}
-diff '--color=auto' -ruN post-upstream/fs/proc_namespace.c work-50/fs/proc_namespace.c
---- a/fs/proc_namespace.c	2026-03-06 20:29:57.968613258 +0100
-+++ b/fs/proc_namespace.c	2026-03-06 21:15:59.070450624 +0100
+diff -ruN post-upstream/fs/proc_namespace.c work-50/fs/proc_namespace.c
+--- post-upstream/fs/proc_namespace.c	2026-03-06 20:29:57.968613258 +0100
++++ work-50/fs/proc_namespace.c	2026-03-06 21:15:59.070450624 +0100
 @@ -14,7 +14,7 @@
  #include <linux/sched/task.h>
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
@@ -949,9 +949,9 @@ diff '--color=auto' -ruN post-upstream/fs/proc_namespace.c work-50/fs/proc_names
  
  	/* device */
  	if (sb->s_op->show_devname) {
-diff '--color=auto' -ruN post-upstream/fs/readdir.c work-50/fs/readdir.c
---- a/fs/readdir.c	2026-03-06 20:29:57.968791264 +0100
-+++ b/fs/readdir.c	2026-03-06 21:16:58.389086863 +0100
+diff -ruN post-upstream/fs/readdir.c work-50/fs/readdir.c
+--- post-upstream/fs/readdir.c	2026-03-06 20:29:57.968791264 +0100
++++ work-50/fs/readdir.c	2026-03-06 21:16:58.389086863 +0100
 @@ -27,6 +27,23 @@
  #ifdef CONFIG_KSU_SUSFS_SUS_PATH
  #include <linux/susfs_def.h>
@@ -1123,9 +1123,9 @@ diff '--color=auto' -ruN post-upstream/fs/readdir.c work-50/fs/readdir.c
  #endif
  	dirent = buf->current_dir;
  	prev = (void __user *) dirent - prev_reclen;
-diff '--color=auto' -ruN post-upstream/fs/stat.c work-50/fs/stat.c
---- a/fs/stat.c	2026-03-06 20:29:57.968914118 +0100
-+++ b/fs/stat.c	2026-03-06 21:15:56.786503133 +0100
+diff -ruN post-upstream/fs/stat.c work-50/fs/stat.c
+--- post-upstream/fs/stat.c	2026-03-06 20:29:57.968914118 +0100
++++ work-50/fs/stat.c	2026-03-06 21:15:56.786503133 +0100
 @@ -18,6 +18,7 @@
  #include <linux/pagemap.h>
  #include <linux/compat.h>
@@ -1213,9 +1213,9 @@ diff '--color=auto' -ruN post-upstream/fs/stat.c work-50/fs/stat.c
  	if (bufsiz <= 0)
  		return -EINVAL;
  
-diff '--color=auto' -ruN post-upstream/fs/statfs.c work-50/fs/statfs.c
---- a/fs/statfs.c	2026-03-06 20:29:57.968996547 +0100
-+++ b/fs/statfs.c	2026-03-06 21:15:49.062680707 +0100
+diff -ruN post-upstream/fs/statfs.c work-50/fs/statfs.c
+--- post-upstream/fs/statfs.c	2026-03-06 20:29:57.968996547 +0100
++++ work-50/fs/statfs.c	2026-03-06 21:15:49.062680707 +0100
 @@ -12,7 +12,7 @@
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
  #include <linux/susfs_def.h>
@@ -1243,9 +1243,9 @@ diff '--color=auto' -ruN post-upstream/fs/statfs.c work-50/fs/statfs.c
  }
  EXPORT_SYMBOL_NS(vfs_statfs, ANDROID_GKI_VFS_EXPORT_ONLY);
  
-diff '--color=auto' -ruN post-upstream/fs/susfs.c work-50/fs/susfs.c
---- a/fs/susfs.c	2026-03-06 20:29:57.961610865 +0100
-+++ b/fs/susfs.c	2026-03-06 21:14:12.744895092 +0100
+diff -ruN post-upstream/fs/susfs.c work-50/fs/susfs.c
+--- post-upstream/fs/susfs.c	2026-03-06 20:29:57.961610865 +0100
++++ work-50/fs/susfs.c	2026-03-06 21:14:12.744895092 +0100
 @@ -8,6 +8,7 @@
  #include <linux/list.h>
  #include <linux/init_task.h>
@@ -2277,9 +2277,9 @@ diff '--color=auto' -ruN post-upstream/fs/susfs.c work-50/fs/susfs.c
  #ifdef CONFIG_KSU_SUSFS_SPOOF_UNAME
  	susfs_my_uname_init();
  #endif
-diff '--color=auto' -ruN post-upstream/include/linux/mount.h work-50/include/linux/mount.h
---- a/include/linux/mount.h	2026-03-06 20:29:57.969045299 +0100
-+++ b/include/linux/mount.h	2026-03-06 21:05:06.501453448 +0100
+diff -ruN post-upstream/include/linux/mount.h work-50/include/linux/mount.h
+--- post-upstream/include/linux/mount.h	2026-03-06 20:29:57.969045299 +0100
++++ work-50/include/linux/mount.h	2026-03-06 21:05:06.501453448 +0100
 @@ -78,11 +78,7 @@
  	ANDROID_KABI_RESERVE(1);
  	ANDROID_KABI_RESERVE(2);
@@ -2292,9 +2292,9 @@ diff '--color=auto' -ruN post-upstream/include/linux/mount.h work-50/include/lin
  } __randomize_layout;
  
  static inline struct user_namespace *mnt_user_ns(const struct vfsmount *mnt)
-diff '--color=auto' -ruN post-upstream/include/linux/susfs.h work-50/include/linux/susfs.h
---- a/include/linux/susfs.h	2026-03-06 20:29:57.963592439 +0100
-+++ b/include/linux/susfs.h	2026-03-06 21:15:44.422787380 +0100
+diff -ruN post-upstream/include/linux/susfs.h work-50/include/linux/susfs.h
+--- post-upstream/include/linux/susfs.h	2026-03-06 20:29:57.963592439 +0100
++++ work-50/include/linux/susfs.h	2026-03-06 21:15:44.422787380 +0100
 @@ -8,6 +8,8 @@
  #include <linux/path.h>
  #include <linux/susfs_def.h>
@@ -2379,9 +2379,9 @@ diff '--color=auto' -ruN post-upstream/include/linux/susfs.h work-50/include/lin
 +#endif
 +
  #endif
-diff '--color=auto' -ruN post-upstream/include/linux/susfs_def.h work-50/include/linux/susfs_def.h
---- a/include/linux/susfs_def.h	2026-03-06 20:29:57.965134383 +0100
-+++ b/include/linux/susfs_def.h	2026-03-06 21:05:04.665495658 +0100
+diff -ruN post-upstream/include/linux/susfs_def.h work-50/include/linux/susfs_def.h
+--- post-upstream/include/linux/susfs_def.h	2026-03-06 20:29:57.965134383 +0100
++++ work-50/include/linux/susfs_def.h	2026-03-06 21:05:04.665495658 +0100
 @@ -18,6 +18,7 @@
  #define CMD_SUSFS_ADD_SUS_KSTAT 0x55570
  #define CMD_SUSFS_UPDATE_SUS_KSTAT 0x55571
